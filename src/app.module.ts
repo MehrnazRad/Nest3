@@ -1,47 +1,30 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { ProductsModule } from './Products/products.module';
-import { UnitsModule } from './units/units.module';
-import { InventoriesModule } from './inventories/inventories.module';
-import { CategoryOnesModule } from './category-ones/category-ones.module';
-import { CategoryTwoesModule } from './category-twoes/category-twoes.module';
-import { CategoryThreesModule } from './category-threes/category-threes.module';
-import { DraftItemsModule } from './draft-items/draft-items.module';
-import { DraftsModule } from './drafts/drafts.module';
-import { CustomersModule } from './customers/customers.module';
-import { KindsModule } from './kinds/kinds.module';
-import { TransferYearsModule } from './transfer-years/transfer-years.module';
-import { StoragesModule } from './storages/storages.module';
+import { UserModule } from './user/user.module';
+import { ProductModule } from './product/product.module';
+import { CustomConfigsModule } from './Modules/Config/config.module';
+import { TypeOrmDbConfig } from './Modules/Config/typeorm.config';
+import { LoggerMiddleware } from './app.middleware';
+import { AnbarModule } from './anbar/anbar.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'Mehr@2003',
-      database: 'anbar',
-      autoLoadEntities: true,
-      synchronize: true,
-      dropSchema: true,
+    TypeOrmModule.forRootAsync({
+      useClass: TypeOrmDbConfig,
+      inject: [CustomConfigsModule]
     }),
-    ProductsModule,
-    UnitsModule,
-    InventoriesModule,
-    CategoryOnesModule,
-    CategoryTwoesModule,
-    CategoryThreesModule,
-    DraftItemsModule,
-    DraftsModule,
-    CustomersModule,
-    KindsModule,
-    TransferYearsModule,
-    StoragesModule,
+    CustomConfigsModule,
+    UserModule,
+    ProductModule,
+    AnbarModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
-export class AppModule {}
+
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

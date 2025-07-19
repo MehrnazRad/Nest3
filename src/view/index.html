@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <select name="anbar" id="anbar-id-kind"></select>
+    <script>
+        const select = document.querySelector('#anbar-id-kind')
+        const allKind = await fetch('localhost://anbar/getAllKind')
+        // <option value=`${kindId}`>kindName</option>
+        for (let i in allKind) {
+            select.appendChild()
+        }
+    </script>
+</body>
+</html>
