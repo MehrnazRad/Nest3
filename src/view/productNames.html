@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>لیست محصولات</title>
+</head>
+<body>
+  <h2>لیست محصولات</h2>
+
+  <table border="1">
+    <thead>
+      <tr>
+        <th>ردیف</th>
+        <th>نام محصول</th>
+      </tr>
+    </thead>
+    <tbody id="product-table-body"></tbody>
+  </table>
+
+  <script>
+    fetch('http://localhost:8080/product/getProductNames')
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById('product-table-body');
+        tbody.innerHTML = '';
+
+        data.forEach((name, index) => {
+          const tr = document.createElement('tr');
+
+          const tdIndex = document.createElement('td');
+          tdIndex.textContent = index + 1;
+          tdIndex.style.textAlign = 'center';
+
+          const tdName = document.createElement('td');
+          tdName.textContent = name;
+          tdName.style.textAlign = 'right';
+
+          tr.appendChild(tdIndex);
+          tr.appendChild(tdName);
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        console.error('خطا در دریافت داده:', err);
+      });
+  </script>
+</body>
+</html>

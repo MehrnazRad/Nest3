@@ -1,9 +1,13 @@
 import { DraftsEntity } from 'src/Modules/Entity/MySql/drafts.entity';
 import { InventoriesEntity } from 'src/Modules/Entity/MySql/inventories.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+import { CustomersEntity } from './customers.entity';
 
 @Entity('Storages')
 export class StoragesEntity {
+  @OneToMany(() => CustomersEntity, customer => customer.storage)
+ customers: CustomersEntity[];
+
   @PrimaryGeneratedColumn("increment")
   StorageId: number;
 

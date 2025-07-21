@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToMany, OneToMany } from 'typeorm';
 import { CustomersEntity } from 'src/Modules/Entity/MySql/customers.entity';
 import { StoragesEntity } from 'src/Modules/Entity/MySql/storages.entity';
 import { ManyToOne, JoinColumn } from 'typeorm';
@@ -8,9 +8,8 @@ import { DraftItemsEntity } from 'src/Modules/Entity/MySql/draft-items.entity';
 
 @Entity('Drafts')
 export class DraftsEntity {
-  @ManyToMany(() => DraftItemsEntity)
-  @JoinColumn({ name: 'DraftItemId' })
-  draftItem: DraftItemsEntity;
+  @OneToMany(() => DraftItemsEntity, item => item.draft)
+draftItems: DraftItemsEntity[];
 
   @ManyToOne(() => CustomersEntity)
   @JoinColumn({ name: 'CustomerId' })

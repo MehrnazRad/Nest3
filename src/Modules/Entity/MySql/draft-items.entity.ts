@@ -5,9 +5,9 @@ import { ProductsEntity } from 'src/Modules/Entity/MySql/products.entity';
 
 @Entity('DraftItems')
 export class DraftItemsEntity {
-  @ManyToMany(() => DraftsEntity)
-  @JoinColumn({ name: 'DraftId' })
-  draft: DraftsEntity;
+ @ManyToOne(() => DraftsEntity, draft => draft.draftItems)
+@JoinColumn({ name: 'DraftId' })
+draft: DraftsEntity;
 
   @ManyToOne(() => ProductsEntity)
   @JoinColumn({ name: 'ProductId' })

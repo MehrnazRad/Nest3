@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <title>جستجوی محصولات انبار</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; direction: rtl; }
+    select, button { margin: 5px; padding: 5px; }
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; display: none; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: right; }
+    th { background-color: #eee; }
+  </style>
+</head>
+<body>
+  <h2>جستجوی محصولات انبار</h2>
+
+  <label for="storageSelect">نام انبار:</label>
+  <select id="storageSelect">
+    <option value="all">همه انبارها</option>
+  </select>
+
+  <button onclick="fetchInventory()">جستجو</button>
+
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>نام محصول</th>
+        <th>بارکد</th>
+        <th>موجودی</th>
+        <th>نام انبار</th>
+        <th>نام مشتری</th>
+        <th>تلفن</th>
+        <th>آدرس</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    // واکشی لیست انبارها
+    async function loadStorageNames() {
+      try {
+        const res = await fetch('http://localhost:8080/product/getStoragesNames');
+        const storages = await res.json();
+
+        const select = document.getElementById('storageSelect');
+        storages.forEach(storage => {
+          const option = document.createElement('option');
+          option.value = storage.StorageId;
+          option.textContent = storage.Name;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('خطا در واکشی نام انبارها:', error);
+        alert('اتصال به سرویس انبار ممکن نیست.');
+      }
+    }
+
+    // واکشی محصولات یک انبار یا همه انبارها
+    async function fetchInventory() {
+      const storageId = document.getElementById('storageSelect').value;
+      const table = document.getElementById('resultTable');
+      const tableBody = table.querySelector('tbody');
+      tableBody.innerHTML = '';
+      table.style.display = 'none';
+
+      let url = '';
+      if (storageId === 'all') {
+        url = `http://localhost:8080/product/getAllProductsByStorage/all`;
+      } else if (storageId) {
+        url = `http://localhost:8080/product/getAllProductsByStorage/${storageId}`;
+      } else {
+        alert('لطفاً یک گزینه را انتخاب کنید');
+        return;
+      }
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          alert('محصولی یافت نشد.');
+          return;
+        }
+
+        data.forEach(item => {
+          item.Customers.forEach(customer => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${item.ProductName}</td>
+              <td>${item.Barcode}</td>
+              <td>${item.InventoryQty}</td>
+              <td>${item.StorageName}</td>
+              <td>${customer.Name}</td>
+              <td>${customer.PhoneNumber}</td>
+              <td>${customer.Address}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+        });
+
+        table.style.display = 'table';
+      } catch (error) {
+        console.error('خطا در واکشی اطلاعات:', error);
+        alert('دریافت اطلاعات با خطا مواجه شد.');
+      }
+    }
+
+    window.onload = loadStorageNames;
+  </script>
+</body>
+</html>

@@ -11,12 +11,16 @@ import { CategoryOnesEntity } from 'src/Modules/Entity/MySql/category-ones.entit
 import { CategoryTwoesEntity } from 'src/Modules/Entity/MySql/category-twoes.entity';
 import { CategoryThreesEntity } from 'src/Modules/Entity/MySql/category-threes.entity';
 import { InventoriesEntity } from 'src/Modules/Entity/MySql/inventories.entity';
+import { DraftItemsEntity } from './draft-items.entity';
 
 
 @Entity("Products")
 export class ProductsEntity {
   @OneToMany(() => InventoriesEntity, inventory => inventory.product)
   inventories: InventoriesEntity[];
+
+  @OneToMany(() => DraftItemsEntity, draftItem => draftItem.product)
+  draftItems: DraftItemsEntity[];
 
   @ManyToOne(() => UnitsEntity)
   @JoinColumn({ name: 'UnitId' })

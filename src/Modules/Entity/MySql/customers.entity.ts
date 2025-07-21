@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { OneToMany } from 'typeorm';
 import { DraftsEntity } from 'src/Modules/Entity/MySql/drafts.entity';
+import { UnitsEntity } from './units.entity';
+import { StoragesEntity } from './storages.entity';
 
 
 @Entity('Customers')
@@ -8,7 +10,9 @@ export class CustomersEntity {
  @OneToMany(() => DraftsEntity, draft => draft.customer)
  drafts: DraftsEntity[];
 
-
+@ManyToOne(() => StoragesEntity)
+  @JoinColumn({ name: 'StorageId' })
+  storage: StoragesEntity;
 
   @PrimaryGeneratedColumn("increment")
   CustomerId: number;
