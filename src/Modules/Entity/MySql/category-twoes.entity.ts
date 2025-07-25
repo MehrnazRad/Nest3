@@ -19,7 +19,7 @@ export class CategoryTwoesEntity {
   @PrimaryGeneratedColumn("increment")
   CategoryTwoId: number;
 
-  @Column('int', { nullable: true })
+  @Column('int')
   CategoryOneId: number;
 
   @Column('nvarchar')

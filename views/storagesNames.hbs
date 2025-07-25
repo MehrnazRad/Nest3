@@ -1,0 +1,18 @@
+<h2>{{title}}</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>ردیف</th>
+      <th>لیست انبارها</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each data}}
+    <tr>
+      <td>{{this.StorageId}}</td>
+      <td>{{this.Name}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>

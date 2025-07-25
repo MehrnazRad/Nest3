@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { InventoriesEntity } from 'src/Modules/Entity/MySql/inventories.entity';
-import { ProductsEntity } from 'src/Modules/Entity/MySql/products.entity';
-import { StoragesEntity } from 'src/Modules/Entity/MySql/storages.entity';
-import { Repository } from 'typeorm';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { CategoryOnesEntity } from "src/Modules/Entity/MySql/category-ones.entity";
+import { InventoriesEntity } from "src/Modules/Entity/MySql/inventories.entity";
+import { ProductsEntity } from "src/Modules/Entity/MySql/products.entity";
+import { StoragesEntity } from "src/Modules/Entity/MySql/storages.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class ProductService {
@@ -17,7 +18,16 @@ export class ProductService {
     @InjectRepository(InventoriesEntity)
     private readonly inventoriesRepository: Repository<InventoriesEntity>,
 
+      @InjectRepository(CategoryOnesEntity)
+  private readonly categoryOneRepo: Repository<CategoryOnesEntity>,
   ) {}
+
+
+
+
+
+
+
 
 
   async getAllProductByDraft({ kindId }: { kindId: number }) {
@@ -53,7 +63,7 @@ export class ProductService {
       },
     });
 
-   // return products.map(({ Barcode, Name, Qty, inventories = [] }) => {
+    // return products.map(({ Barcode, Name, Qty, inventories = [] }) => {
     //   const initialQty = Number(Qty) || 0;
     //   const currentInventory = inventories.reduce(
     //     (sum, { Qty }) => sum + Number(Qty || 0),
@@ -71,124 +81,123 @@ export class ProductService {
     //     soldAmount,
     //   };
     // });
-  };
-
+  }
 
   async getProductNames() {
-  const products = await this.productRepository.find({
-    select: { Name: true },
-  });
+    const products = await this.productRepository.find({
+      select: {
+        ProductId: true,
+        Name: true,
+      },
+    });
 
-  return products.map(p => p.Name); 
-  };
-
-
+    return products.map((p) => ({
+      ProductId: p.ProductId,
+      Name: p.Name,
+    }));
+  }
 
   async getStoragesNames() {
-  const storages = await this.storagesRepository.find({
-    select: { StorageId: true, Name: true },
-  });
-  return storages.map(s => ({ StorageId: s.StorageId, Name: s.Name }));
- };
+    const storages = await this.storagesRepository.find({
+      select: { StorageId: true, Name: true },
+    });
+    return storages.map((s) => ({ StorageId: s.StorageId, Name: s.Name }));
+  }
 
+  async getAllProductsByStorage({ storageId }: { storageId: number | "all" }) {
+    const whereClause = storageId === "all" ? {} : { StorageId: storageId };
 
-
-  async getAllProductsByStorage({ storageId }: { storageId: number | 'all' }) {
-  const whereClause = storageId === 'all'
-    ? {} 
-    : { StorageId: storageId }; 
-
-  const inventories = await this.inventoriesRepository.find({
-    select: {
-      Qty: true,
-      product: { Name: true, Barcode: true },
-      storage: {
-        Name: true,
-        customers: {
-          Name: true,
-          Address: true,
-          PhoneNumber: true,
-        },
-      },
-    },
-    where: whereClause,
-    relations: {
-      product: true,
-      storage: { customers: true },
-    },
-  });
-
-  return inventories.map(row => ({
-    ProductName: row.product?.Name,
-    Barcode: row.product?.Barcode,
-    InventoryQty: Number(row.Qty),
-    StorageName: row.storage?.Name,
-    Customers: (row.storage?.customers ?? []).map(c => ({
-      Name: c.Name,
-      PhoneNumber: c.PhoneNumber,
-      Address: c.Address,
-    })),
-  }));
-  };
-
-
-
-async getQtyReportById(productId: number) {
-  const product = await this.productRepository.findOne({
-    select: {
-      ProductId: true,
-      Barcode: true,
-      Name: true,
-      Qty: true,
-      draftItems: {
+    const inventories = await this.inventoriesRepository.find({
+      select: {
         Qty: true,
-        draft: {
-          KindId: true,
-          kind: { KindName: true },
+        product: { Name: true, Barcode: true },
+        storage: {
+          Name: true,
+          customers: {
+            Name: true,
+            Address: true,
+            PhoneNumber: true,
+          },
         },
       },
-    },
-    where: { ProductId: productId },
-    relations: {
-      draftItems: {
-        draft: { kind: true },
+      where: whereClause,
+      relations: {
+        product: true,
+        storage: { customers: true },
       },
-    },
-  });
+    });
 
-  if (!product) throw new NotFoundException('محصولی با این شناسه یافت نشد');
+    return inventories.flatMap((row) => {
+      const customers = row.storage?.customers ?? [];
 
-  const initialQty = Number(product.Qty || 0);
-  let totalIn = 0;
-  let totalOut = 0;
-  const kindCounts: Record<string, number> = {};
+      return customers.map((customer) => ({
+        ProductName: row.product?.Name,
+        Barcode: row.product?.Barcode,
+        InventoryQty: Number(row.Qty),
+        StorageName: row.storage?.Name,
+        CustomersName: customer?.Name ?? null,
+        CustomersPhoneNumber: customer?.PhoneNumber ?? null,
+        CustomersAddress: customer?.Address ?? null,
+      }));
+    });
+  }
 
-  product.draftItems.forEach(({ Qty, draft }) => {
-    const qty = Number(Qty || 0);
-    const kindId = draft?.KindId;
-    const kindName = draft?.kind?.KindName ?? 'نامشخص';
+  async getQtyReportById(productId: number) {
+    const product = await this.productRepository.findOne({
+      select: {
+        ProductId: true,
+        Barcode: true,
+        Name: true,
+        Qty: true,
+        draftItems: {
+          Qty: true,
+          draft: {
+            KindId: true,
+            kind: { KindName: true },
+          },
+        },
+      },
+      where: { ProductId: productId },
+      relations: {
+        draftItems: {
+          draft: { kind: true },
+        },
+      },
+    });
 
-    kindCounts[kindName] = (kindCounts[kindName] || 0) + 1;
+    if (!product) throw new NotFoundException("محصولی با این شناسه یافت نشد");
 
-    if ([1, 4, 6].includes(kindId)) totalIn += qty;
-    if ([2, 3, 7, 9].includes(kindId)) totalOut += qty;
-    if (kindId === 8) {
-      totalIn = qty;
-      totalOut = 0;
-    }
-  });
+    const initialQty = Number(product.Qty || 0);
+    let totalIn = 0;
+    let totalOut = 0;
+    const kindCounts: Record<string, number> = {};
 
-  const actualQty = initialQty + totalIn - totalOut;
+    product.draftItems.forEach(({ Qty, draft }) => {
+      const qty = Number(Qty || 0);
+      const kindId = draft?.KindId;
+      const kindName = draft?.kind?.KindName ?? "نامشخص";
 
-  return {
-    ProductId: product.ProductId,
-    Barcode: product.Barcode,
-    Name: product.Name,
-    initialQty,
-    totalIn,
-    totalOut,
-    actualQty,
-    operations: kindCounts,
-  };
+      kindCounts[kindName] = (kindCounts[kindName] || 0) + 1;
+
+      if ([1, 4, 6].includes(kindId)) totalIn += qty;
+      if ([2, 3, 7, 9].includes(kindId)) totalOut += qty;
+      if (kindId === 8) {
+        totalIn = qty;
+        totalOut = 0;
+      }
+    });
+
+    const actualQty = initialQty + totalIn - totalOut;
+
+    return {
+      ProductId: product.ProductId,
+      Barcode: product.Barcode,
+      Name: product.Name,
+      initialQty,
+      totalIn,
+      totalOut,
+      actualQty,
+      operations: kindCounts,
+    };
+  }
 }
-};

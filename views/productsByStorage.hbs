@@ -1,0 +1,45 @@
+<h2>{{title}}</h2>
+
+<form id="storageForm" method="GET" action="">
+  <label for="storageSelect">نام انبار:</label>
+  <select id="storageSelect" name="storageId">
+    <option value="all" {{#if (eq selectedStorage "all")}}selected{{/if}}>همه انبارها</option>
+    {{#each select}}
+      <option value="{{this.StorageId}}" {{#if (eq ../selectedStorage this.StorageId)}}selected{{/if}}>{{this.Name}}</option>
+    {{/each}}
+  </select>
+</form>
+
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>نام محصول</th>
+      <th>بارکد</th>
+      <th>موجودی</th>
+      <th>نام انبار</th>
+      <th>نام مشتری</th>
+      <th>تلفن</th>
+      <th>آدرس</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {{#each data}}
+      <tr>
+        <td>{{this.ProductName}}</td>
+        <td>{{this.Barcode}}</td>
+        <td>{{this.InventoryQty}}</td>
+        <td>{{this.StorageName}}</td>
+        <td>{{this.CustomersName}}</td>
+        <td>{{this.CustomersPhoneNumber}}</td>
+        <td>{{this.CustomersAddress}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<script>
+  document.getElementById("storageSelect").addEventListener("change", function () {
+    document.getElementById("storageForm").submit();
+  });
+</script>

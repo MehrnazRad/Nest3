@@ -104,7 +104,7 @@ export class ProductsEntity {
   @Column('nvarchar', { nullable: true })
   MetaKeywords: string;
 
-  @Column('datetime', { nullable: true })
+  @Column('datetime',)
   EnExpireDate: Date;
 
   @Column('nvarchar', { nullable: true })

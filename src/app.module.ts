@@ -7,6 +7,8 @@ import { CustomConfigsModule } from './Modules/Config/config.module';
 import { TypeOrmDbConfig } from './Modules/Config/typeorm.config';
 import { LoggerMiddleware } from './app.middleware';
 import { AnbarModule } from './anbar/anbar.module';
+import { ViewModule } from './view/view.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { AnbarModule } from './anbar/anbar.module';
     UserModule,
     ProductModule,
     AnbarModule,
+    ViewModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [],

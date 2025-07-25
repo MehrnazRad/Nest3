@@ -13,6 +13,7 @@ import { TransferYearsEntity } from '../Entity/MySql/transfer-years.entity';
 import { StoragesEntity } from '../Entity/MySql/storages.entity';
 import { ProductsEntity } from '../Entity/MySql/products.entity';
 import { ConfigService } from '@nestjs/config';
+import { UserEntity } from '../Entity/MySql/user.entity';
 
 @Injectable()
 export class TypeOrmDbConfig implements TypeOrmOptionsFactory {
@@ -31,18 +32,19 @@ export class TypeOrmDbConfig implements TypeOrmOptionsFactory {
             synchronize: false,
             logging: false,
             entities: [
-                UnitsEntity,
                 CategoryOnesEntity,
                 CategoryTwoesEntity,
                 CategoryThreesEntity,
-                ProductsEntity,
-                StoragesEntity,
-                TransferYearsEntity,
                 CustomersEntity,
-                KindsEntity,
                 DraftsEntity,
                 DraftItemsEntity,
                 InventoriesEntity,
+                KindsEntity,
+                ProductsEntity,
+                StoragesEntity,
+                TransferYearsEntity,
+                UnitsEntity,
+                UserEntity,
             ]
         }
     }

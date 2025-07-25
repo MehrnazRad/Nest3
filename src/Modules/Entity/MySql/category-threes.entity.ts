@@ -16,7 +16,7 @@ categoryTwo: CategoryTwoesEntity;
   @PrimaryGeneratedColumn("increment")
   CategoryThreeId: number;
 
-  @Column('int', { nullable: true })
+  @Column('int')
   CategoryTwoId: number;
 
   @Column('nvarchar')
